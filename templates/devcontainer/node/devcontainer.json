@@ -1,0 +1,35 @@
+{
+  "name": "Node.js 22",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "eamodio.gitlens",
+        "github.copilot",
+        "orta.vscode-jest"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "typescript.preferences.importModuleSpecifier": "relative"
+      }
+    }
+  },
+
+  "forwardPorts": [3000, 4000],
+  "portsAttributes": {
+    "3000": { "label": "Dev Server" },
+    "4000": { "label": "API Server" }
+  },
+
+  "postCreateCommand": "npm install 2>/dev/null || true",
+  "remoteUser": "node"
+}
