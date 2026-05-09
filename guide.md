@@ -184,8 +184,24 @@ GitHub → Settings → Branches → Add rule
 
 ### lefthook 설치 (처음 한 번)
 
+**macOS:**
 ```bash
-brew install lefthook && lefthook install
+brew install lefthook
+```
+
+**Linux (curl):**
+```bash
+curl -fsSL https://raw.githubusercontent.com/evilmartians/lefthook/master/install.sh | bash
+```
+
+**Linux / Node.js 환경 (npm):**
+```bash
+npm install -g lefthook
+```
+
+설치 후 프로젝트 루트에서:
+```bash
+lefthook install
 ```
 
 ### cron 루프 등록 (선택)

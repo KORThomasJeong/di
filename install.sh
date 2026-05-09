@@ -64,6 +64,20 @@ add_path_to_file "$HOME/.zshrc"
 # 현재 세션에도 즉시 적용
 export PATH="$BIN_DIR:$PATH"
 
+# ── lefthook 설치 안내 ─────────────────────────────────────
+OS="$(uname -s)"
+if command -v lefthook &> /dev/null; then
+  ok "lefthook 이미 설치됨"
+else
+  warn "lefthook 미설치 (Git hooks 사용 시 필요)"
+  if [ "$OS" = "Darwin" ]; then
+    warn "  설치:  brew install lefthook"
+  elif [ "$OS" = "Linux" ]; then
+    warn "  설치 (curl):  curl -fsSL https://raw.githubusercontent.com/evilmartians/lefthook/master/install.sh | bash"
+    warn "  설치 (npm):   npm install -g lefthook"
+  fi
+fi
+
 echo ""
 echo -e "${BOLD}${GREEN}✅ 설치 완료!${RESET}"
 echo ""

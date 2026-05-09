@@ -1262,7 +1262,14 @@ if command -v lefthook &> /dev/null; then
   lefthook install
   ok "lefthook 훅 설치 완료"
 else
-  warn "lefthook 미설치. 나중에: brew install lefthook && lefthook install"
+  warn "lefthook 미설치. 설치 후 lefthook install 실행하세요."
+  OS="$(uname -s)"
+  if [ "$OS" = "Darwin" ]; then
+    warn "  macOS:  brew install lefthook"
+  elif [ "$OS" = "Linux" ]; then
+    warn "  Linux:  curl -fsSL https://raw.githubusercontent.com/evilmartians/lefthook/master/install.sh | bash"
+    warn "  또는:   npm install -g lefthook"
+  fi
 fi
 
 # ══════════════════════════════════════════════════════════
