@@ -121,7 +121,40 @@ mkdir -p "$PROJECT_DIR"/{.github/{workflows,ISSUE_TEMPLATE},.claude/commands,scr
 cd "$PROJECT_DIR"
 ok "디렉토리 구조 생성 완료"
 
-DEVCONTAINER_ADDED=false
+# ── devcontainer 프롬프트 ──────────────────────────────────
+printf "\n  devcontainer를 추가하시겠습니까? [y/N] "
+read -r ADD_DEVCONTAINER
+if [[ "${ADD_DEVCONTAINER:-}" =~ ^[Yy]$ ]]; then
+  mkdir -p .devcontainer
+  NP_TMPL_DIR="${HOME}/.np-templates/devcontainer"
+  if [ -f "${NP_TMPL_DIR}/${STACK}/devcontainer.json" ]; then
+    cp "${NP_TMPL_DIR}/${STACK}/devcontainer.json" .devcontainer/devcontainer.json
+    ok ".devcontainer/devcontainer.json 생성"
+    if [ "$STACK" = "fullstack" ] && [ -f "${NP_TMPL_DIR}/fullstack/docker-compose.yml" ]; then
+      cp "${NP_TMPL_DIR}/fullstack/docker-compose.yml" .devcontainer/docker-compose.yml
+      ok ".devcontainer/docker-compose.yml 생성"
+    fi
+  else
+    BASE="https://raw.githubusercontent.com/KORThomasJeong/di/main/templates/devcontainer"
+    echo "  devcontainer 템플릿 다운로드 중 ($STACK)..."
+    if curl -fsSL "$BASE/$STACK/devcontainer.json" -o .devcontainer/devcontainer.json 2>/dev/null; then
+      ok ".devcontainer/devcontainer.json 생성"
+    else
+      warn "devcontainer.json 다운로드 실패 — 스택 '$STACK' 템플릿이 없을 수 있습니다"
+    fi
+    if [ "$STACK" = "fullstack" ]; then
+      if curl -fsSL "$BASE/fullstack/docker-compose.yml" -o .devcontainer/docker-compose.yml 2>/dev/null; then
+        ok ".devcontainer/docker-compose.yml 생성"
+      else
+        warn "docker-compose.yml 다운로드 실패"
+      fi
+    fi
+  fi
+  ok "devcontainer 설정 완료"
+  DEVCONTAINER_ADDED=true
+else
+  DEVCONTAINER_ADDED=false
+fi
 
 # ══════════════════════════════════════════════════════════
 step ".gitignore"
@@ -1292,6 +1325,13 @@ echo "  cd $PROJECT_DIR"
 echo "  claude                    # Claude Code 시작"
 echo "  /issue <번호>             # 이슈 기반 작업 시작"
 echo ""
+if [ "${DEVCONTAINER_ADDED:-false}" = "true" ]; then
+  echo -e "${BOLD}devcontainer 사용법:${RESET}"
+  echo "  code .                    # VS Code로 열기"
+  echo "  → 우하단 알림 또는 명령팔레트: 'Reopen in Container'"
+  echo "  → Docker Desktop이 실행 중이어야 합니다"
+  echo ""
+fi
 echo -e "${BOLD}cron 로그 확인:${RESET}"
 echo "  tail -f ~/.claude-loops/logs/fix-ci-$(date +%Y%m%d).log"
 echo ""
