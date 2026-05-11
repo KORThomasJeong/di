@@ -97,18 +97,6 @@ if [ -d "$PROJECT_DIR" ]; then
   [[ "$OVERWRITE" =~ ^[Yy]$ ]] || fail "중단합니다."
 fi
 
-# ── GitHub 인증 확인 ─────────────────────────────────────
-if ! gh auth status &>/dev/null; then
-  warn "GitHub CLI 인증이 되어 있지 않습니다."
-  ask "지금 로그인하시겠습니까? [Y/n]"
-  read -r DO_GH_LOGIN
-  if [[ "${DO_GH_LOGIN:-y}" =~ ^[Yy]$ ]]; then
-    gh auth login || fail "GitHub 로그인에 실패했습니다."
-  else
-    warn "로그인 없이 계속합니다. GitHub 저장소 생성 및 CODEOWNERS 기능이 제한됩니다."
-  fi
-fi
-
 # ── 변수 설정 ─────────────────────────────────────────────
 OWNER=$(gh api user --jq .login 2>/dev/null || echo "your-username")
 YEAR=$(date +%Y)
