@@ -125,19 +125,29 @@ ok "디렉토리 구조 생성 완료"
 printf "\n  devcontainer를 추가하시겠습니까? [y/N] "
 read -r ADD_DEVCONTAINER
 if [[ "${ADD_DEVCONTAINER:-}" =~ ^[Yy]$ ]]; then
-  BASE="https://raw.githubusercontent.com/KORThomasJeong/di/main/templates/devcontainer"
   mkdir -p .devcontainer
-  echo "  devcontainer 템플릿 다운로드 중 ($STACK)..."
-  if curl -fsSL "$BASE/$STACK/devcontainer.json" -o .devcontainer/devcontainer.json 2>/dev/null; then
+  NP_TMPL_DIR="${HOME}/.np-templates/devcontainer"
+  if [ -f "${NP_TMPL_DIR}/${STACK}/devcontainer.json" ]; then
+    cp "${NP_TMPL_DIR}/${STACK}/devcontainer.json" .devcontainer/devcontainer.json
     ok ".devcontainer/devcontainer.json 생성"
-  else
-    warn "devcontainer.json 다운로드 실패 — 스택 '$STACK' 템플릿이 없을 수 있습니다"
-  fi
-  if [ "$STACK" = "fullstack" ]; then
-    if curl -fsSL "$BASE/fullstack/docker-compose.yml" -o .devcontainer/docker-compose.yml 2>/dev/null; then
+    if [ "$STACK" = "fullstack" ] && [ -f "${NP_TMPL_DIR}/fullstack/docker-compose.yml" ]; then
+      cp "${NP_TMPL_DIR}/fullstack/docker-compose.yml" .devcontainer/docker-compose.yml
       ok ".devcontainer/docker-compose.yml 생성"
+    fi
+  else
+    BASE="https://raw.githubusercontent.com/KORThomasJeong/di/main/templates/devcontainer"
+    echo "  devcontainer 템플릿 다운로드 중 ($STACK)..."
+    if curl -fsSL "$BASE/$STACK/devcontainer.json" -o .devcontainer/devcontainer.json 2>/dev/null; then
+      ok ".devcontainer/devcontainer.json 생성"
     else
-      warn "docker-compose.yml 다운로드 실패"
+      warn "devcontainer.json 다운로드 실패 — 스택 '$STACK' 템플릿이 없을 수 있습니다"
+    fi
+    if [ "$STACK" = "fullstack" ]; then
+      if curl -fsSL "$BASE/fullstack/docker-compose.yml" -o .devcontainer/docker-compose.yml 2>/dev/null; then
+        ok ".devcontainer/docker-compose.yml 생성"
+      else
+        warn "docker-compose.yml 다운로드 실패"
+      fi
     fi
   fi
   ok "devcontainer 설정 완료"
@@ -1238,6 +1248,17 @@ ok "스택별 초기 파일 생성"
 # ══════════════════════════════════════════════════════════
 step "Git 초기화"
 # ══════════════════════════════════════════════════════════
+
+# git 사용자 정보 설정 (없으면 환경변수에서 자동 설정)
+if [ -z "$(git config --global user.name 2>/dev/null)" ] && [ -n "${GIT_AUTHOR_NAME:-}" ]; then
+  git config --global user.name "$GIT_AUTHOR_NAME"
+fi
+if [ -z "$(git config --global user.email 2>/dev/null)" ] && [ -n "${GIT_AUTHOR_EMAIL:-}" ]; then
+  git config --global user.email "$GIT_AUTHOR_EMAIL"
+fi
+if [ -z "$(git config --global user.email 2>/dev/null)" ]; then
+  warn "git user.email이 설정되지 않았습니다. 'git config --global user.email <이메일>'을 실행하세요."
+fi
 
 git init -b main
 git add .
